@@ -1,0 +1,26 @@
+--- CMakeLists.txt.orig	2026-03-30 00:27:41.123779360 +0300
++++ CMakeLists.txt	2026-03-30 00:27:41.137779441 +0300
+@@ -200,8 +200,8 @@
+       set(Build_Protobuf OFF)
+       if("${Protobuf_VERSION}" VERSION_GREATER_EQUAL "4.22.0")
+         # There are extra dependencies for protobuf.
+-        find_package(absl REQUIRED)
+-        find_package(utf8_range REQUIRED)
++        find_package(absl REQUIRED CONFIG)
++        # find_package(utf8_range)
+         message(STATUS "absl_VERSION: ${absl_VERSION}")
+         set(protobuf_ABSL_USED_TARGETS
+           absl::absl_check
+@@ -238,9 +238,10 @@
+           absl::type_traits
+           absl::utility
+           absl::variant
+-          utf8_range::utf8_range
+-          utf8_range::utf8_validity
+         )
++        if (TARGET utf8_range::utf8_range)
++          list(APPEND protobuf_ABSL_USED_TARGETS utf8_range::utf8_range utf8_range::utf8_validity)
++        endif()
+       endif()
+     endif()
+   endif()

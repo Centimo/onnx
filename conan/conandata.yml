@@ -1,0 +1,8 @@
+sources:
+  "1.18.0":
+    url: "https://github.com/onnx/onnx/archive/refs/tags/v1.18.0.tar.gz"
+    sha256: "b466af96fd8d9f485d1bb14f9bbdd2dfb8421bc5544583f014088fb941a1d21e"
+
+patches:
+  "1.18.0":
+    - patch_file: "patches/cmake-absl-proto-targets.patch"
