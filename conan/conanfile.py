@@ -12,6 +12,7 @@ required_conan_version = ">=2"
 
 class OnnxConan(ConanFile):
     name = "onnx"
+    version = "1.18.0"
     description = "Open standard for machine learning interoperability."
     license = "Apache-2.0"
     topics = ("machine-learning", "deep-learning", "neural-network")
