@@ -118,8 +118,6 @@ class OnnxConan(ConanFile):
             "abseil::absl_variant",
         ]
         defines = ["ONNX_NAMESPACE=onnx", "ONNX_ML=1"]
-        if self.options.disable_static_registration:
-            defines.append("__ONNX_DISABLE_STATIC_REGISTRATION")
         if self.dependencies.host["protobuf"].options.lite:
             defines.append("ONNX_USE_LITE_PROTO=1")
 
