@@ -53,7 +53,7 @@ class OnnxConan(ConanFile):
 
     def requirements(self):
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
-        self.requires("abseil/20240722.0")
+        self.requires("abseil/20250512.1")
 
     def validate(self):
         check_min_cppstd(self, 17)
