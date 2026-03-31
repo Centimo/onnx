@@ -53,7 +53,7 @@ class OnnxConan(ConanFile):
 
     def requirements(self):
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
-        self.requires("abseil/20240722.0", transitive_headers=True, transitive_libs=True)
+        self.requires("abseil/20250512.1", transitive_headers=True, transitive_libs=True)
         self.requires("zlib/1.3.1", override=True)
 
     def validate(self):
