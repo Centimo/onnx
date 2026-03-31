@@ -61,7 +61,7 @@ class OnnxConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("protobuf/<host_version>")
-        self.tool_requires("cmake/3.28.6", override=True)
+        self.tool_requires("cmake/3.28.6", force=True)
 
     def source(self):
         if os.path.exists(os.path.join(self.source_folder, "CMakeLists.txt")):
