@@ -100,6 +100,8 @@ class OnnxConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         fix_apple_shared_install_name(self)
+        copy(self, "onnx.proto", src=os.path.join(self.source_folder, "onnx"),
+             dst=os.path.join(self.package_folder, "res", "onnx"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ONNX")
@@ -128,6 +130,7 @@ class OnnxConan(ConanFile):
         self.cpp_info.components["onnx_proto"].libs = ["onnx_proto"]
         self.cpp_info.components["onnx_proto"].defines = defines
         self.cpp_info.components["onnx_proto"].requires = requires
+        self.cpp_info.components["onnx_proto"].includedirs = ["include"]
 
         # libonnx: main ONNX library, depends on onnx_proto
         self.cpp_info.components["libonnx"].set_property("cmake_target_name", "ONNX::onnx")
@@ -135,3 +138,4 @@ class OnnxConan(ConanFile):
         self.cpp_info.components["libonnx"].libs = ["onnx"]
         self.cpp_info.components["libonnx"].defines = defines
         self.cpp_info.components["libonnx"].requires = ["onnx_proto"] + requires
+        self.cpp_info.components["libonnx"].includedirs = ["include"]
