@@ -56,8 +56,10 @@ class OnnxConan(ConanFile):
         self.requires("abseil/20250512.1", transitive_headers=True, transitive_libs=True)
         self.requires("zlib/1.3.1", override=True)
 
+    package_id_embed_mode = "revision_mode"
+    package_id_non_embed_mode = "revision_mode"
+
     def package_id(self):
-        self.info.recipe_revision_mode()
         self.info.requires["protobuf"].full_package_mode()
         self.info.requires["abseil"].full_package_mode()
 
