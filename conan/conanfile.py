@@ -57,6 +57,7 @@ class OnnxConan(ConanFile):
         self.requires("zlib/1.3.1", override=True)
 
     def package_id(self):
+        self.info.recipe_revision_mode()
         self.info.requires["protobuf"].full_package_mode()
         self.info.requires["abseil"].full_package_mode()
 
