@@ -34,8 +34,10 @@ class OnnxConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        # build*/ and cmake-build*/ are local build trees (one may hold a whole Conan cache);
+        # .claude/ is local tooling state.
         copy(self, "*", src=os.path.join(self.recipe_folder, ".."), dst=self.export_sources_folder,
-             excludes=["conan/*", ".git/*"])
+             excludes=["conan/*", ".git/*", "build*/*", "cmake-build*/*", ".claude/*"])
 
     def config_options(self):
         if self.settings.os == "Windows":
