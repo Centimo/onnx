@@ -38,10 +38,10 @@ class OnnxConan(ConanFile):
         export_conandata_patches(self)
         # Export exactly the files git tracks, so untracked build trees and ignored local state
         # in the checkout never reach the recipe sources. Content is taken from the working tree.
-        # A checked-out submodule contributes its own tracked files; one that is not checked out
-        # stays a gitlink entry (mode 160000) with nothing on disk to copy.
+        # Submodules are listed as gitlink entries (mode 160000) and skipped, checked out or not:
+        # their content belongs to other repositories, and the build does not use it.
         repository_root = os.path.join(self.recipe_folder, "..")
-        index_entries = Git(self, folder=repository_root).run("ls-files --cached --recurse-submodules -s -z")
+        index_entries = Git(self, folder=repository_root).run("ls-files --cached -s -z")
         for entry in filter(None, index_entries.split("\0")):
             metadata, path = entry.split("\t", 1)
             if metadata.startswith("160000 ") or path.startswith("conan/"):

@@ -274,8 +274,8 @@ if(NOT ONNX_PROTOC_EXECUTABLE)
     # ABSL_ROOT_DIR is required by Protobuf.
     set(ABSL_ROOT_DIR ${abseil_SOURCE_DIR})
     message(STATUS "Abseil source dir:" ${ABSL_ROOT_DIR})
-    set(ProtobufURL https://github.com/Centimo/protobuf/archive/86e456a32f0ba5410c787fc5a5e5f1b1bed89208.tar.gz)
-    set(ProtobufSHA1 98d54d623c644f31f138692d1e45d47289fd1744)
+    set(ProtobufURL https://github.com/Centimo/protobuf/archive/d66621008a5c6b7d865014ac18f4a85a963179bc.tar.gz)
+    set(ProtobufSHA1 f91dc337313335511cb4adb4e93c53ada947d01f)
     FetchContent_Declare(
       Protobuf
       URL ${ProtobufURL}
