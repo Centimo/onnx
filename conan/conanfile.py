@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
@@ -6,6 +7,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.scm import Git
 
 required_conan_version = ">=2"
 
@@ -34,10 +36,19 @@ class OnnxConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        # build*/ and cmake-build*/ are local build trees (one may hold a whole Conan cache);
-        # .claude/ is local tooling state.
-        copy(self, "*", src=os.path.join(self.recipe_folder, ".."), dst=self.export_sources_folder,
-             excludes=["conan/*", ".git/*", "build*/*", "cmake-build*/*", ".claude/*"])
+        # Export exactly the files git tracks, so untracked build trees and ignored local state
+        # in the checkout never reach the recipe sources. Content is taken from the working tree.
+        # A checked-out submodule contributes its own tracked files; one that is not checked out
+        # stays a gitlink entry (mode 160000) with nothing on disk to copy.
+        repository_root = os.path.join(self.recipe_folder, "..")
+        index_entries = Git(self, folder=repository_root).run("ls-files --cached --recurse-submodules -s -z")
+        for entry in filter(None, index_entries.split("\0")):
+            metadata, path = entry.split("\t", 1)
+            if metadata.startswith("160000 ") or path.startswith("conan/"):
+                continue
+            destination = os.path.join(self.export_sources_folder, path)
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            shutil.copy2(os.path.join(repository_root, path), destination, follow_symlinks=False)
 
     def config_options(self):
         if self.settings.os == "Windows":
