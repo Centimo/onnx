@@ -52,13 +52,16 @@ class OnnxConan(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
-        self.requires("abseil/20250512.1", transitive_headers=True, transitive_libs=True)
+        self.requires("protobuf/3.21.12.1", transitive_headers=True, transitive_libs=True)
         self.requires("zlib/1.3.1", override=True)
 
     def package_id(self):
         self.info.requires["protobuf"].full_package_mode()
-        self.info.requires["abseil"].full_package_mode()
+        # The C++ standard is fixed by the recipe, not by the profile: generate() removes the
+        # toolchain block that would turn compiler.cppstd into CMAKE_CXX_STANDARD and pins
+        # CMAKE_CXX_STANDARD to 17. The artifact is identical for every compiler.cppstd, so it
+        # must not split the package id.
+        self.info.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -76,6 +79,12 @@ class OnnxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        # Drop the language-standard block (CMAKE_CXX_STANDARD/EXTENSIONS/REQUIRED and
+        # the C equivalents) and pin the standard: package_id() relies on compiler.cppstd
+        # being inert for the build.
+        tc.blocks.remove("cppstd")
+        tc.variables["CMAKE_CXX_STANDARD"] = "17"
+        tc.variables["CMAKE_CXX_STANDARD_REQUIRED"] = "ON"
         tc.cache_variables["ONNX_USE_PROTOBUF_SHARED_LIBS"] = self.dependencies.host["protobuf"].options.shared
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.get_safe("shared", False)
         tc.cache_variables["ONNX_BUILD_PYTHON"] = False
@@ -109,26 +118,12 @@ class OnnxConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ONNX")
-        requires = [
-            "protobuf::libprotobuf",
-            "abseil::absl_absl_check", "abseil::absl_absl_log", "abseil::absl_algorithm",
-            "abseil::absl_base", "abseil::absl_bind_front", "abseil::absl_bits",
-            "abseil::absl_btree", "abseil::absl_cleanup", "abseil::absl_cord",
-            "abseil::absl_core_headers", "abseil::absl_debugging", "abseil::absl_die_if_null",
-            "abseil::absl_dynamic_annotations", "abseil::absl_flags", "abseil::absl_flat_hash_map",
-            "abseil::absl_flat_hash_set", "abseil::absl_function_ref", "abseil::absl_hash",
-            "abseil::absl_layout", "abseil::absl_log_initialize", "abseil::absl_log_severity",
-            "abseil::absl_memory", "abseil::absl_node_hash_map", "abseil::absl_node_hash_set",
-            "abseil::absl_optional", "abseil::absl_span", "abseil::absl_status",
-            "abseil::absl_statusor", "abseil::absl_strings", "abseil::absl_synchronization",
-            "abseil::absl_time", "abseil::absl_type_traits", "abseil::absl_utility",
-            "abseil::absl_variant",
-        ]
+        requires = ["protobuf::libprotobuf"]
         defines = ["ONNX_NAMESPACE=onnx", "ONNX_ML=1"]
         if self.dependencies.host["protobuf"].options.lite:
             defines.append("ONNX_USE_LITE_PROTO=1")
 
-        # onnx_proto: protobuf-generated types, depends on protobuf + abseil
+        # onnx_proto: protobuf-generated types, depends on protobuf
         self.cpp_info.components["onnx_proto"].set_property("cmake_target_name", "ONNX::onnx_proto")
         self.cpp_info.components["onnx_proto"].set_property("cmake_target_aliases", ["onnx_proto"])
         self.cpp_info.components["onnx_proto"].libs = ["onnx_proto"]
